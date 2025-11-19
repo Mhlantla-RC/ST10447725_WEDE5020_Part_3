@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<!-- 
+  THE ODD JOBBERS - ENQUIRY PAGE
+  Lead generation and quote request form
+  Primary conversion point for the website
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- CONVERSION-FOCUSED TITLE -->
+    <title>Get a Quote - The Odd Jobbers | Free Service Estimate</title>
+    
+    <!-- ACTION-ORIENTED META DESCRIPTION -->
+    <meta name="description" content="Request a free quote from The Odd Jobbers. Fast, reliable moving and delivery services with transparent pricing.">
+    
+    <link rel="stylesheet" href="CSS/Style.css">
+    <link rel="icon" type="image/png" href="images/favicon.png">
+</head>
+
+<body>
+    <header>
+        <nav>
+            <div class="nav-brand">
+                <img src="images/istockphoto-1215584720-2048x2048 (1).jpg" 
+                     alt="The Odd Jobbers Logo" 
+                     width="80" height="80">
+                <h1>The Odd Jobbers</h1>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="about.html">About Us</a>
+                <a href="service.html">Services</a>
+                
+                <!-- CURRENT PAGE - Enquiry/Quote -->
+                <a href="enquiry.html" class="active">Get Quote</a> <!-- Clear action-oriented label -->
+                
+                <a href="contact.html">Contact</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- ENQUIRY FORM SECTION -->
+            <section id="enquiry">
+                <!-- PAGE HEADING -->
+                <h2>Get a Free Quote</h2> <!-- Clear value proposition -->
+                
+                <!-- INSTRUCTIONAL TEXT -->
+                <p>We're here to help with your moving and delivery needs. Fill out the form below to get a accurate quote or ask any questions.</p> <!-- Guidance for users -->
+
+                <div>
+                    <!-- FORM CONTAINER -->
+                    <div>
+                        <h3>Request a Service / Get a Quote</h3> <!-- Form purpose -->
+                        
+                        <!-- LEAD CAPTURE FORM -->
+                        <form id="enquiryForm"> <!-- ID for JavaScript targeting -->
+                            <!-- NAME FIELD -->
+                            <div>
+                                <label for="clientName">Your Full Name</label> <!-- Accessible label -->
+                                <input type="text" 
+                                       id="clientName" 
+                                       name="clientName" 
+                                       required> <!-- Required field validation -->
+                            </div>
+                            
+                            <!-- EMAIL FIELD -->
+                            <div>
+                                <label for="clientEmail">Email Address</label>
+                                <input type="email" 
+                                       id="clientEmail" 
+                                       name="clientEmail" 
+                                       required> <!-- Email type validation -->
+                            </div>
+                            
+                            <!-- PHONE FIELD (Optional) -->
+                            <div>
+                                <label for="clientPhone">Phone Number (Optional)</label> <!-- Clear optional indicator -->
+                                <input type="tel" 
+                                       id="clientPhone" 
+                                       name="clientPhone"> <!-- Telephone input type -->
+                            </div>
+                            
+                            <!-- SERVICE TYPE SELECTION -->
+                            <div>
+                                <label for="serviceType">Type of Service Needed</label>
+                                <select id="serviceType" 
+                                        name="serviceType" 
+                                        required> <!-- Required selection -->
+                                    <option value="">-- Select Service --</option> <!-- Default placeholder -->
+                                    <option value="parcel">Small Parcel Delivery</option>
+                                    <option value="furniture">Furniture/Appliance Transport</option>
+                                    <option value="apartment_move">Apartment/Small Home Move</option>
+                                    <option value="retail_pickup">Retail Store Pick-up</option>
+                                    <option value="event_help">Event Setup/Takedown</option>
+                                    <option value="custom">Custom Odd Job</option>
+                                </select>
+                            </div>
+                            
+                            <!-- JOB DETAILS TEXTAREA -->
+                            <div>
+                                <label for="jobDetails">Tell us about your job (items, locations, date needed):</label> <!-- Detailed instructions -->
+                                <textarea id="jobDetails" 
+                                          name="jobDetails" 
+                                          rows="5" 
+                                          minlength="20" 
+                                          maxlength="1000" 
+                                          required 
+                                          spellcheck="true" 
+                                          placeholder="Please describe what you need, including pickup and delivery addresses, items to be moved, and your preferred date..."></textarea> <!-- Helpful placeholder -->
+                            </div>
+                            
+                            <!-- SUBMIT BUTTON -->
+                            <div id="formErrors" aria-live="polite" style="color:#b00020;margin-bottom:0.5rem;"></div>
+
+                            <button type="submit" class="button" id="submitBtn">Submit Quote Request</button>
+
+                            <!-- Confirmation modal (hidden by default) -->
+                            <div id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-hidden="true"
+                                 style="display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;">
+                                <div id="confirmOverlay" style="position:absolute;inset:0;background:rgba(0,0,0,0.5);"></div>
+                                <div style="position:relative;max-width:420px;margin:auto;background:#fff;border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,0.2);padding:1.25rem;z-index:1001;">
+                                    <h2 id="confirmTitle" style="margin:0 0 0.5rem;font-size:1.125rem;">Request Sent</h2>
+                                    <p id="confirmMsg" style="margin:0 0 1rem;color:#222;">Thank you! Your quote request has been received. We will contact you shortly.</p>
+                                    <div style="text-align:right;">
+                                        <button id="confirmOk" class="button" style="padding:0.5rem 0.75rem;">OK</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <script>
+                                (function(){
+                                    var form = document.getElementById('enquiryForm');
+                                    var nameEl = document.getElementById('clientName');
+                                    var emailEl = document.getElementById('clientEmail');
+                                    var phoneEl = document.getElementById('clientPhone');
+                                    var serviceEl = document.getElementById('serviceType');
+                                    var detailsEl = document.getElementById('jobDetails');
+                                    var errorsEl = document.getElementById('formErrors');
+                                    var submitBtn = document.getElementById('submitBtn');
+
+                                    var modal = document.getElementById('confirmModal');
+                                    var overlay = document.getElementById('confirmOverlay');
+                                    var okBtn = document.getElementById('confirmOk');
+                                    var lastActive = null;
+
+                                    function formatErrors(errors){
+                                        if(!errors.length) return '';
+                                        var html = '<ul style="margin:0 0 0.5rem 1.2rem;padding:0;">';
+                                        errors.forEach(function(e){ html += '<li>' + e + '</li>'; });
+                                        html += '</ul>';
+                                        return html;
+                                    }
+
+                                    function openModal(){
+                                        lastActive = document.activeElement;
+                                        modal.style.display = 'flex';
+                                        modal.setAttribute('aria-hidden', 'false');
+                                        submitBtn.disabled = true;
+                                        // focus OK button for keyboard users
+                                        okBtn.focus();
+
+                                        // simple focus trap: keep focus on OK button (only focusable control)
+                                        document.addEventListener('keydown', trapTab);
+                                        document.addEventListener('keydown', escHandler);
+                                    }
+
+                                    function closeModalAndSubmit(){
+                                        modal.style.display = 'none';
+                                        modal.setAttribute('aria-hidden', 'true');
+                                        document.removeEventListener('keydown', trapTab);
+                                        document.removeEventListener('keydown', escHandler);
+                                        // restore previous focus (optional)
+                                        try{ if(lastActive) lastActive.focus(); } catch(e){}
+                                        // submit the form for real now
+                                        form.submit();
+                                    }
+
+                                    function trapTab(e){
+                                        if(e.key === 'Tab'){
+                                            // prevent tabbing away; keep focus on OK button
+                                            e.preventDefault();
+                                            okBtn.focus();
+                                        }
+                                    }
+
+                                    function escHandler(e){
+                                        if(e.key === 'Escape' || e.key === 'Esc'){
+                                            // treat as confirmation
+                                            e.preventDefault();
+                                            closeModalAndSubmit();
+                                        }
+                                    }
+
+                                    // close if user clicks overlay outside modal content
+                                    overlay.addEventListener('click', function(){
+                                        closeModalAndSubmit();
+                                    });
+
+                                    okBtn.addEventListener('click', function(){
+                                        closeModalAndSubmit();
+                                    });
+
+                                    form.addEventListener('submit', function(ev){
+                                        ev.preventDefault(); // handle submission after validation/confirmation
+                                        var errors = [];
+
+                                        // Name
+                                        var nameVal = nameEl.value.trim();
+                                        if(!nameVal){
+                                            errors.push('Please enter your full name.');
+                                        }
+
+                                        // Email (built-in validation)
+                                        var emailVal = emailEl.value.trim();
+                                        if(!emailVal){
+                                            errors.push('Please enter your email address.');
+                                        } else if(!emailEl.checkValidity()){
+                                            errors.push('Please enter a valid email address.');
+                                        }
+
+                                        // Phone (optional) - basic sanity check if provided
+                                        var phoneVal = phoneEl.value.trim();
+                                        if(phoneVal && !/^[0-9+\s().-]{7,}$/.test(phoneVal)){
+                                            errors.push('If provided, please enter a valid phone number (at least 7 digits).');
+                                        }
+
+                                        // Service type
+                                        if(!serviceEl.value){
+                                            errors.push('Please select the type of service needed.');
+                                        }
+
+                                        // Job details length
+                                        var detailsLen = detailsEl.value.trim().length;
+                                        if(detailsLen < 20){
+                                            errors.push('Please provide more details about the job (at least 5 characters).');
+                                        }
+
+                                        if(errors.length){
+                                            errorsEl.innerHTML = formatErrors(errors);
+                                            // focus first invalid field
+                                            if(!nameVal){ nameEl.focus(); }
+                                            else if(!emailVal || !emailEl.checkValidity()){ emailEl.focus(); }
+                                            else if(phoneVal && !/^[0-9+\s().-]{7,}$/.test(phoneVal)){ phoneEl.focus(); }
+                                            else if(!serviceEl.value){ serviceEl.focus(); }
+                                            else { detailsEl.focus(); }
+                                            errorsEl.scrollIntoView({behavior:'smooth', block:'center'});
+                                            return;
+                                        }
+
+                                        // Successful validation: open confirmation popup before final submit
+                                        errorsEl.innerHTML = '';
+                                        openModal();
+                                    }, false);
+                                })();
+                            </script>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 The Odd Jobbers. All rights reserved.</p>
+            <p>Making your life easier, one odd job at a time.</p>
+        </div>
+    </footer>
+    
+    <script src="js/script.js"></script> <!-- Form validation and submission handling -->
+</body>
+</html>
